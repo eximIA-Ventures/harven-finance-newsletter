@@ -532,7 +532,12 @@ function Footer({ t }: { t: ReturnType<typeof useTheme> }) {
     <footer style={{ marginTop: 72, borderTop: `1px solid ${t.border}`, padding: "40px 24px", textAlign: "center" }}>
       <p style={{ fontSize: 11, color: t.muted, margin: 0 }}>Harven Finance Newsletter</p>
       <p style={{ marginTop: 4, fontSize: 10, color: t.footerDim }}>Agro · Finanças · Geopolítica</p>
-      <div style={{ width: 40, height: 1, background: t.gold, margin: "16px auto 0", opacity: 0.2 }} />
+      <div style={{ width: 40, height: 1, background: t.gold, margin: "16px auto", opacity: 0.2 }} />
+      <a href="/dashboard" style={{ fontSize: 9, color: t.footerDim, textDecoration: "none", transition: "color 0.15s" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = t.muted)}
+        onMouseLeave={(e) => (e.currentTarget.style.color = t.footerDim)}>
+        Dashboard
+      </a>
     </footer>
   );
 }
