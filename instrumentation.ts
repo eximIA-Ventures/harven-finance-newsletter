@@ -2,9 +2,10 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const cron = await import("node-cron");
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3007";
-    const authHeaders = process.env.CRON_SECRET
-      ? { Authorization: `Bearer ${process.env.CRON_SECRET}` }
-      : {};
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (process.env.CRON_SECRET) {
+      headers["Authorization"] = `Bearer ${process.env.CRON_SECRET}`;
+    }
 
     // ── Newsletter: daily at 9:00 AM ────────────────────
     cron.default.schedule(
@@ -14,7 +15,7 @@ export async function register() {
         try {
           const res = await fetch(`${baseUrl}/api/newsletter/briefing`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", ...authHeaders },
+            headers,
           });
           if (res.ok) {
             const data = await res.json();
