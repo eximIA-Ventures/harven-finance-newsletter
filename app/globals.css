@@ -39,7 +39,28 @@
   --c-danger: 200 80 70;      /* only red allowed */
   --c-info: 160 160 160;      /* gray = neutral info */
 
-  /* --- Typography --- */
+}
+
+/* Light theme override */
+[data-theme="light"] {
+  --c-bg: 248 247 244;            /* #F8F7F4 */
+  --c-surface: 255 255 255;       /* #FFFFFF */
+  --c-elevated: 245 244 240;      /* #F5F4F0 */
+  --c-overlay: 238 237 233;       /* #EEEDEA */
+  --c-border: 230 228 222;        /* #E6E4DE */
+  --c-border-light: 210 208 200;  /* #D2D0C8 */
+  --c-primary: 26 26 26;          /* #1A1A1A */
+  --c-secondary: 68 68 68;        /* #444444 */
+  --c-muted: 153 153 153;         /* #999999 */
+  --c-accent: 156 138 85;         /* #9C8A55 */
+  --c-accent-dim: 130 115 70;     /* #827346 */
+  --c-accent-hover: 176 158 105;  /* #B09E69 */
+  --c-success: 76 175 80;
+  --c-warning: 200 160 60;
+  --c-danger: 220 60 50;
+  --c-info: 100 130 170;
+
+  /* --- Typography (inherited) --- */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;

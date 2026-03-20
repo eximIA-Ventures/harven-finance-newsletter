@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Sun, Moon } from "lucide-react";
 import { useFeeds } from "@/hooks/use-feeds";
 import { useTopics } from "@/hooks/use-topics";
 import { useBookmarks } from "@/hooks/use-bookmarks";
@@ -125,8 +126,25 @@ export default function DashboardPage() {
     setSelectedTopicId(null);
   };
 
+  const [dark, setDark] = useState(true);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    return () => document.documentElement.removeAttribute("data-theme");
+  }, [dark]);
+
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-bg transition-colors duration-300">
+      {/* Theme toggle */}
+      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 60 }}>
+        <button
+          onClick={() => setDark(!dark)}
+          className="flex items-center justify-center w-8 h-8 rounded-full border border-border bg-surface transition-all hover:bg-elevated"
+        >
+          {dark ? <Sun className="w-3.5 h-3.5 text-accent" /> : <Moon className="w-3.5 h-3.5 text-muted" />}
+        </button>
+      </div>
+
       <Header
         topics={topics}
         selectedTopicId={selectedTopicId}
