@@ -126,7 +126,7 @@ export default function DashboardPage() {
     setSelectedTopicId(null);
   };
 
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");

@@ -49,14 +49,19 @@ export function Header({
           {/* Brand mark */}
           <div className="flex items-center gap-3">
             <img
+              src="/harven-finance-logo-dark.png"
+              alt="Harven Finance"
+              className="h-7 w-auto dark-logo hidden"
+            />
+            <img
               src="/harven-finance-logo.png"
               alt="Harven Finance"
-              className="h-7 w-auto"
+              className="h-7 w-auto light-logo hidden"
             />
             <div className="h-5 w-[1px] bg-border" />
             <div>
               <h1 className="text-lg font-bold tracking-tight text-primary">
-                Newsletter
+                Dashboard
               </h1>
               {fetchedAt && (
                 <p className="text-[10px] text-muted font-mono">

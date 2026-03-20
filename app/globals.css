@@ -103,6 +103,18 @@ html, body {
 }
 
 /* =============================================================================
+   THEME-AWARE LOGO
+   ============================================================================= */
+
+/* Default (dark): show white logo */
+.light-logo { display: inline-block !important; }
+.dark-logo { display: none !important; }
+
+/* Light theme: show dark logo */
+[data-theme="light"] .light-logo { display: none !important; }
+[data-theme="light"] .dark-logo { display: inline-block !important; }
+
+/* =============================================================================
    TYPOGRAPHY
    ============================================================================= */
 
