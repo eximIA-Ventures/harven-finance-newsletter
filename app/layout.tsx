@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Harven Finance Newsletter",
   description: "Intelligence Briefing — Agronegócio, Finanças e Geopolítica.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.png",
   },
 };
 
