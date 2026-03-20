@@ -533,11 +533,19 @@ function Footer({ t }: { t: ReturnType<typeof useTheme> }) {
       <p style={{ fontSize: 11, color: t.muted, margin: 0 }}>Harven Finance Newsletter</p>
       <p style={{ marginTop: 4, fontSize: 10, color: t.footerDim }}>Agro · Finanças · Geopolítica</p>
       <div style={{ width: 40, height: 1, background: t.gold, margin: "16px auto", opacity: 0.2 }} />
-      <a href="/dashboard" style={{ fontSize: 9, color: t.footerDim, textDecoration: "none", transition: "color 0.15s" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = t.muted)}
-        onMouseLeave={(e) => (e.currentTarget.style.color = t.footerDim)}>
-        Dashboard
-      </a>
+      <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 4 }}>
+        <a href="/dashboard" style={{ fontSize: 11, color: t.muted, textDecoration: "none", transition: "color 0.15s" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = t.gold)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = t.muted)}>
+          Dashboard
+        </a>
+        <span style={{ color: t.footerDim }}>·</span>
+        <a href="https://portal.harvenfinance.com.br" style={{ fontSize: 11, color: t.muted, textDecoration: "none", transition: "color 0.15s" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = t.gold)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = t.muted)}>
+          Portal Finance
+        </a>
+      </div>
     </footer>
   );
 }
