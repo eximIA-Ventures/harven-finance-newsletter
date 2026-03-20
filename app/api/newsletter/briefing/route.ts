@@ -108,10 +108,30 @@ export async function POST(request: NextRequest) {
     // 1. Fetch all feeds
     const { articles } = await parseAllFeeds(defaultFeeds);
 
-    // 2. Enrich with topics
-    const enriched = enrichArticlesWithTopics(articles, defaultTopics);
+    // 2. Build set of URLs already used in previous editions (dedup cross-day)
+    const previousEditions = getAllEditions();
+    const usedUrls = new Set<string>();
+    for (const ed of previousEditions) {
+      for (const section of ed.sections) {
+        for (const item of section.items) {
+          usedUrls.add(item.link);
+        }
+      }
+    }
+    console.log(`[BRIEFING] ${usedUrls.size} URLs from previous editions excluded`);
 
-    // 3. Group by topic, pick top 4
+    // 3. Filter: only articles from last 24h + not in previous editions
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const freshArticles = articles.filter((a) => {
+      const pubDate = new Date(a.publishedAt);
+      return pubDate >= cutoff && !usedUrls.has(a.link);
+    });
+    console.log(`[BRIEFING] ${articles.length} total → ${freshArticles.length} fresh (last 24h, not seen before)`);
+
+    // 4. Enrich with topics
+    const enriched = enrichArticlesWithTopics(freshArticles, defaultTopics);
+
+    // 5. Group by topic, pick top 3
     const topicMap: Record<string, string> = {
       "Agronegócio": "agro",
       "Finanças": "finance",
@@ -124,13 +144,34 @@ export async function POST(request: NextRequest) {
       geo: [],
     };
 
+    // Also build title fingerprints from previous editions to catch
+    // recurring articles like "Soja e trigo hoje: cotações para segunda (17)"
+    // vs "Soja e trigo hoje: cotações para terça (18)"
+    const usedTitleFingerprints = new Set<string>();
+    for (const ed of previousEditions) {
+      for (const section of ed.sections) {
+        for (const item of section.items) {
+          usedTitleFingerprints.add(titleFingerprint(item.title));
+        }
+      }
+    }
+
     const seen = new Set<string>();
+    const seenFingerprints = new Set<string>();
     for (const article of enriched) {
+      const fp = titleFingerprint(article.title);
+      // Skip if URL already used, or title is too similar to a previous one
+      if (seen.has(article.link)) continue;
+      if (seenFingerprints.has(fp)) continue;
+      if (usedTitleFingerprints.has(fp)) continue;
+
       for (const match of article.topics) {
         const key = topicMap[match.topic.name];
-        if (key && !seen.has(article.link)) {
+        if (key) {
           seen.add(article.link);
+          seenFingerprints.add(fp);
           grouped[key].push(article);
+          break;
         }
       }
     }
@@ -300,6 +341,21 @@ function persistEdition(sections: BriefingSection[], articleCount: number, marke
   };
   saveEdition(edition);
   return edition;
+}
+
+// Normalize title to a fingerprint — strips dates, numbers, punctuation
+// so "Soja e trigo hoje: cotações para quinta (19)" and
+// "Soja e trigo hoje: cotações para sexta (20)" produce the same fingerprint
+function titleFingerprint(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/\d+/g, "")             // remove numbers
+    .replace(/segunda|terça|quarta|quinta|sexta|sábado|domingo/g, "") // remove weekdays
+    .replace(/janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/g, "")
+    .replace(/[^\w\s]/g, "")         // remove punctuation
+    .replace(/\s+/g, " ")            // collapse spaces
+    .trim()
+    .slice(0, 50);                   // first 50 chars is enough for matching
 }
 
 function buildSections(articles: BriefingArticle[]): BriefingSection[] {
