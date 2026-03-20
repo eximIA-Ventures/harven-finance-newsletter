@@ -1,0 +1,359 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   VERSO Design System — by Harven Finance
+   DNA: Black · White · Harven Gold (#B8A16B)
+   ============================================================================= */
+
+:root {
+  /* --- Black Scale --- */
+  --c-bg: 5 5 5;              /* #050505 */
+  --c-surface: 12 12 12;      /* #0C0C0C */
+  --c-elevated: 18 18 18;     /* #121212 */
+  --c-overlay: 24 24 24;      /* #181818 */
+
+  /* --- Border (neutral gray, no warmth) --- */
+  --c-border: 32 32 32;       /* #202020 */
+  --c-border-light: 48 48 48; /* #303030 */
+
+  /* --- White Scale --- */
+  --c-primary: 245 245 245;   /* #F5F5F5 — near-white */
+  --c-secondary: 160 160 160; /* #A0A0A0 — mid gray */
+  --c-muted: 90 90 90;        /* #5A5A5A — dim gray */
+
+  /* --- Harven Gold (the only color) --- */
+  --c-accent: 184 161 107;    /* #B8A16B */
+  --c-accent-dim: 140 122 80; /* #8C7A50 */
+  --c-accent-hover: 204 182 130; /* #CCB682 */
+
+  /* --- Topic Accents (gold tints — monochrome + gold only) --- */
+  --c-agro: 184 161 107;
+  --c-finance: 184 161 107;
+  --c-geo: 184 161 107;
+
+  /* --- Semantic --- */
+  --c-success: 184 161 107;   /* gold = positive */
+  --c-warning: 200 180 120;
+  --c-danger: 200 80 70;      /* only red allowed */
+  --c-info: 160 160 160;      /* gray = neutral info */
+
+  /* --- Typography --- */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* --- Timing --- */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* --- Radius --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* --- Shadows --- */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-glow-gold: 0 0 24px rgba(184, 161, 107, 0.12);
+}
+
+/* =============================================================================
+   BASE
+   ============================================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-primary));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* =============================================================================
+   TYPOGRAPHY
+   ============================================================================= */
+
+.verso-heading {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: rgb(var(--c-primary));
+}
+
+.verso-label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c-accent));
+}
+
+.verso-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgb(var(--c-secondary));
+}
+
+.verso-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgb(var(--c-muted));
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-hover)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =============================================================================
+   COMPONENTS
+   ============================================================================= */
+
+/* Glass Panel */
+.glass-panel {
+  background: rgba(12, 12, 12, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-lg);
+}
+
+.glass-panel-hover {
+  transition: all var(--duration-normal) ease;
+}
+.glass-panel-hover:hover {
+  background: rgba(18, 18, 18, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Badge — mono gold */
+.badge-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: all var(--duration-normal) ease;
+  cursor: pointer;
+  background: rgba(184, 161, 107, 0.08);
+  color: rgb(var(--c-accent));
+  border: 1px solid rgba(184, 161, 107, 0.15);
+}
+.badge-topic:hover {
+  background: rgba(184, 161, 107, 0.16);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+/* Article Card */
+.article-card {
+  background: rgb(var(--c-surface));
+  border: 1px solid rgb(var(--c-border));
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all var(--duration-normal) ease;
+}
+.article-card:hover {
+  background: rgb(var(--c-elevated));
+  border-color: rgb(var(--c-border-light));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* KPI */
+.kpi-card {
+  background: rgb(var(--c-surface));
+  border: 1px solid rgb(var(--c-border));
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: rgb(var(--c-primary));
+  line-height: 1;
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgb(var(--c-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* Gold bar — logo horizontal accent */
+.gold-bar {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--c-accent)), transparent);
+  opacity: 0.4;
+}
+
+.divider-gold {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(184, 161, 107, 0.25) 50%, transparent 100%);
+  margin: 24px 0;
+}
+
+/* =============================================================================
+   NEWSLETTER (email-safe, inline-friendly)
+   ============================================================================= */
+
+.newsletter-wrapper {
+  max-width: 640px;
+  margin: 0 auto;
+  background: #050505;
+  color: #F5F5F5;
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+}
+
+.newsletter-header {
+  padding: 32px 24px 24px;
+  border-bottom: 1px solid #202020;
+  text-align: center;
+}
+.newsletter-header-brand {
+  font-size: 24px;
+  font-weight: 700;
+  color: #F5F5F5;
+  letter-spacing: -0.01em;
+}
+.newsletter-header-sub {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #B8A16B;
+  margin-top: 4px;
+}
+.newsletter-header-bar {
+  width: 60px;
+  height: 1px;
+  background: #B8A16B;
+  margin: 16px auto 0;
+  opacity: 0.5;
+}
+.newsletter-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #5A5A5A;
+  margin-top: 12px;
+}
+
+.newsletter-section {
+  padding: 24px;
+  border-bottom: 1px solid #202020;
+}
+.newsletter-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #B8A16B;
+  margin-bottom: 16px;
+}
+
+.newsletter-item {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #121212;
+}
+.newsletter-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.newsletter-item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #F5F5F5;
+  line-height: 1.4;
+}
+.newsletter-item-summary {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #A0A0A0;
+  margin-top: 6px;
+}
+.newsletter-item-source {
+  font-size: 11px;
+  color: #5A5A5A;
+  margin-top: 6px;
+}
+
+.newsletter-footer {
+  padding: 24px;
+  text-align: center;
+  font-size: 11px;
+  color: #5A5A5A;
+}
+.newsletter-footer a {
+  color: #B8A16B;
+  text-decoration: none;
+}
+
+/* =============================================================================
+   SCROLLBAR
+   ============================================================================= */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: rgb(var(--c-bg)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--c-border)); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--c-muted)); }
+.scroll-hidden::-webkit-scrollbar { display: none; }
+.scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in { animation: fadeIn var(--duration-slow) ease-out; }
+.animate-slide-in { animation: slideInRight var(--duration-slow) ease-out; }
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+.skeleton {
+  background: linear-gradient(90deg, rgb(var(--c-surface)) 25%, rgb(var(--c-elevated)) 50%, rgb(var(--c-surface)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
