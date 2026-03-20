@@ -7,24 +7,21 @@ export async function register() {
       headers["Authorization"] = `Bearer ${process.env.CRON_SECRET}`;
     }
 
-    // ── Newsletter: daily at 9:00 AM ────────────────────
+    // ── Newsletter diária: 9:00 AM ─────────────────────
     cron.default.schedule(
       "0 9 * * *",
       async () => {
-        console.log("[CRON] Generating daily newsletter edition...");
+        console.log("[CRON] Generating daily newsletter...");
         try {
-          const res = await fetch(`${baseUrl}/api/newsletter/briefing`, {
-            method: "POST",
-            headers,
-          });
+          const res = await fetch(`${baseUrl}/api/newsletter/briefing`, { method: "POST", headers });
           if (res.ok) {
             const data = await res.json();
-            console.log(`[CRON] Edition generated: ${data.edition?.id} — ${data.articleCount} articles`);
+            console.log(`[CRON] Daily edition: ${data.edition?.id} — ${data.articleCount} articles`);
           } else {
-            console.error(`[CRON] Newsletter failed: ${res.status}`);
+            console.error(`[CRON] Daily failed: ${res.status}`);
           }
         } catch (error) {
-          console.error("[CRON] Newsletter error:", error);
+          console.error("[CRON] Daily error:", error);
         }
       },
       { timezone: "America/Sao_Paulo" }
@@ -39,9 +36,7 @@ export async function register() {
           const res = await fetch(`${baseUrl}/api/market?refresh=true`);
           if (res.ok) {
             const data = await res.json();
-            console.log(`[CRON] Market data refreshed: ${data.quotes?.length} quotes`);
-          } else {
-            console.error(`[CRON] Market refresh failed: ${res.status}`);
+            console.log(`[CRON] Market: ${data.quotes?.length} quotes`);
           }
         } catch (error) {
           console.error("[CRON] Market error:", error);
@@ -50,6 +45,58 @@ export async function register() {
       { timezone: "America/Sao_Paulo" }
     );
 
-    console.log("[CRON] Scheduled: newsletter at 09:00 | market at 09:00, 12:00, 16:00, 20:00 (America/Sao_Paulo)");
+    // ── Resumo semanal: sábado 10:00 AM ─────────────────
+    cron.default.schedule(
+      "0 10 * * 6",
+      async () => {
+        console.log("[CRON] Generating weekly digest...");
+        try {
+          const res = await fetch(`${baseUrl}/api/newsletter/digest`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ type: "weekly" }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            console.log(`[CRON] Weekly digest: ${data.edition?.id}`);
+          } else {
+            console.error(`[CRON] Weekly failed: ${res.status}`);
+          }
+        } catch (error) {
+          console.error("[CRON] Weekly error:", error);
+        }
+      },
+      { timezone: "America/Sao_Paulo" }
+    );
+
+    // ── Resumo mensal: dia 1 de cada mês, 10:00 AM ─────
+    cron.default.schedule(
+      "0 10 1 * *",
+      async () => {
+        console.log("[CRON] Generating monthly digest...");
+        try {
+          const res = await fetch(`${baseUrl}/api/newsletter/digest`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ type: "monthly" }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            console.log(`[CRON] Monthly digest: ${data.edition?.id}`);
+          } else {
+            console.error(`[CRON] Monthly failed: ${res.status}`);
+          }
+        } catch (error) {
+          console.error("[CRON] Monthly error:", error);
+        }
+      },
+      { timezone: "America/Sao_Paulo" }
+    );
+
+    console.log("[CRON] Scheduled:");
+    console.log("  Daily newsletter:  09:00 (seg-dom)");
+    console.log("  Market data:       09:00, 12:00, 16:00, 20:00");
+    console.log("  Weekly digest:     sábado 10:00");
+    console.log("  Monthly digest:    dia 1, 10:00");
   }
 }
