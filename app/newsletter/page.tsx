@@ -39,6 +39,7 @@ export default function NewsletterPage() {
   const [dark, setDark] = useState(false);
   const [view, setView] = useState<"home" | "edition">("home");
   const [openEditionId, setOpenEditionId] = useState<string | null>(null);
+  const [editionFilter, setEditionFilter] = useState<"all" | "daily" | "weekly" | "monthly">("all");
 
   useEffect(() => {
     async function loadEditions() {
@@ -323,63 +324,115 @@ export default function NewsletterPage() {
               </div>
             )}
 
-            {/* ─── Briefings Recentes (grid cards) ──────────── */}
-            {!loading && editions.length > 0 && (
-              <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 24px" }}>
-                <div style={{ marginTop: 56 }}>
-                  <SectionLabel text="Briefings recentes" t={t} />
+            {/* ─── Edições (com filtros) ─────────────────────── */}
+            {!loading && editions.length > 0 && (() => {
+              const isDaily = (id: string) => !id.includes("W") && !id.includes("M");
+              const isWeekly = (id: string) => id.includes("-W");
+              const isMonthly = (id: string) => id.includes("-M");
 
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-                    {editions.slice(0, 6).map((edition) => {
-                      const coverItem = edition.sections.flatMap((s) => s.items).find((a) => validImage(a.image));
-                      return (
-                        <button
-                          key={edition.id}
-                          onClick={() => openEd(edition.id)}
-                          style={{
-                            display: "block",
-                            width: "100%",
-                            textAlign: "left",
-                            background: t.cardBg,
-                            border: `1px solid ${t.cardBorder}`,
-                            borderRadius: 14,
-                            overflow: "hidden",
-                            cursor: "pointer",
-                            transition: "all 0.2s",
-                            padding: 0,
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 8px 24px ${t.shadow}`; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
-                        >
-                          {/* Cover image */}
-                          {coverItem?.image && (
-                            <div style={{ width: "100%", height: 160, overflow: "hidden" }}>
-                              <img
-                                src={coverItem.image}
-                                alt=""
-                                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }}
-                                onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
-                              />
+              const filtered = editions.filter((ed) => {
+                if (editionFilter === "daily") return isDaily(ed.id);
+                if (editionFilter === "weekly") return isWeekly(ed.id);
+                if (editionFilter === "monthly") return isMonthly(ed.id);
+                return true;
+              });
+
+              const getTypeBadge = (id: string) => {
+                if (isWeekly(id)) return "Semanal";
+                if (isMonthly(id)) return "Mensal";
+                return "Diário";
+              };
+
+              return (
+                <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 24px" }}>
+                  <div style={{ marginTop: 56 }}>
+                    {/* Header + Filters */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                      <SectionLabel text="Edições" t={t} />
+                      <div style={{ display: "flex", gap: 4 }}>
+                        {([
+                          { key: "all", label: "Todas" },
+                          { key: "daily", label: "Diário" },
+                          { key: "weekly", label: "Semanal" },
+                          { key: "monthly", label: "Mensal" },
+                        ] as const).map((f) => (
+                          <button
+                            key={f.key}
+                            onClick={() => setEditionFilter(f.key)}
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              padding: "5px 12px",
+                              borderRadius: 6,
+                              border: "none",
+                              cursor: "pointer",
+                              transition: "all 0.15s",
+                              background: editionFilter === f.key ? t.gold : "transparent",
+                              color: editionFilter === f.key ? "#fff" : t.muted,
+                            }}
+                          >
+                            {f.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+                      {filtered.slice(0, 9).map((edition) => {
+                        const coverItem = edition.sections.flatMap((s) => s.items).find((a) => validImage(a.image));
+                        const badge = getTypeBadge(edition.id);
+                        return (
+                          <button
+                            key={edition.id}
+                            onClick={() => openEd(edition.id)}
+                            style={{
+                              display: "block",
+                              width: "100%",
+                              textAlign: "left",
+                              background: t.cardBg,
+                              border: `1px solid ${t.cardBorder}`,
+                              borderRadius: 14,
+                              overflow: "hidden",
+                              cursor: "pointer",
+                              transition: "all 0.2s",
+                              padding: 0,
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 8px 24px ${t.shadow}`; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+                          >
+                            {coverItem?.image && (
+                              <div style={{ width: "100%", height: 160, overflow: "hidden", position: "relative" }}>
+                                <img src={coverItem.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }} onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }} />
+                                {badge !== "Diário" && (
+                                  <span style={{ position: "absolute", top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: "3px 8px", borderRadius: 4, background: t.gold, color: "#fff", letterSpacing: "0.06em", textTransform: "uppercase" as const }}>{badge}</span>
+                                )}
+                              </div>
+                            )}
+                            <div style={{ padding: "16px 20px 20px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: t.muted }}>
+                                <span style={{ textTransform: "capitalize" }}>{edition.dateLabel}</span>
+                                {!coverItem?.image && badge !== "Diário" && (
+                                  <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: `${t.gold}20`, color: t.gold }}>{badge}</span>
+                                )}
+                              </div>
+                              <h3 style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3, color: t.title, margin: "8px 0 0", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>{edition.headline}</h3>
+                              <p style={{ fontSize: 12, color: t.muted, margin: "8px 0 0" }}>{edition.articleCount} matérias · {edition.sections.map((s) => s.label).join(", ")}</p>
                             </div>
-                          )}
-                          <div style={{ padding: "16px 20px 20px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: t.muted }}>
-                              <span style={{ textTransform: "capitalize" }}>{edition.dateLabel}</span>
-                            </div>
-                            <h3 style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3, color: t.title, margin: "8px 0 0", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                              {edition.headline}
-                            </h3>
-                            <p style={{ fontSize: 12, color: t.muted, margin: "8px 0 0" }}>
-                              {edition.articleCount} matérias · {edition.sections.map((s) => s.label).join(", ")}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {filtered.length === 0 && (
+                      <p style={{ textAlign: "center", fontSize: 13, color: t.muted, padding: "40px 0" }}>
+                        Nenhuma edição {editionFilter === "weekly" ? "semanal" : editionFilter === "monthly" ? "mensal" : ""} disponível ainda.
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* ─── Por que assinar ──────────────────────────── */}
             {!loading && (
