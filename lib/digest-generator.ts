@@ -199,19 +199,47 @@ ${articlesText}`,
         }
       }
 
+      // Collect original articles from daily editions for this topic
+      const originalArticles = [];
+      const seenLinks = new Set<string>();
+      for (const ed of editions) {
+        for (const sec of ed.sections) {
+          if (sec.label !== s.label) continue;
+          for (const item of sec.items) {
+            if (!seenLinks.has(item.link) && item.link) {
+              seenLinks.add(item.link);
+              originalArticles.push({
+                title: item.title,
+                summary: item.summary.split("\n\n")[0] || item.summary,
+                source: item.source,
+                link: item.link,
+                publishedAt: item.publishedAt,
+                topic: s.topic,
+                image: item.image,
+              });
+            }
+          }
+        }
+      }
+
       return {
         topic: s.topic,
         label: s.label,
         emoji: "",
-        items: [{
-          title: `${s.label} — ${type === "weekly" ? "Panorama Semanal" : "Panorama Mensal"}`,
-          summary: fullSummary,
-          source: `Baseado em ${editions.length} edições · ${(byTopic[s.label] || []).length} matérias`,
-          link: "",
-          publishedAt: now.toISOString(),
-          topic: s.topic,
-          image,
-        }],
+        items: [
+          // Panorama as first item
+          {
+            title: `${s.label} — ${type === "weekly" ? "Panorama Semanal" : "Panorama Mensal"}`,
+            summary: fullSummary,
+            source: `Baseado em ${editions.length} edições · ${(byTopic[s.label] || []).length} matérias`,
+            link: "",
+            publishedAt: now.toISOString(),
+            topic: s.topic,
+            image,
+          },
+          // Original articles below
+          ...originalArticles,
+        ],
       };
     });
 
