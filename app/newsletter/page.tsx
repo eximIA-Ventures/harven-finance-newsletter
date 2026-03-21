@@ -644,8 +644,8 @@ function EditionContent({ sections, t }: { sections: BriefingSection[]; t: Retur
             </p>
           </div>
 
-          {section.items.map((article) => (
-            <article key={article.link} style={{ paddingBottom: 36, marginBottom: 36, borderBottom: `1px solid ${t.border}` }}>
+          {section.items.map((article, articleIdx) => (
+            <article key={article.link || `${section.topic}-${articleIdx}`} style={{ paddingBottom: 36, marginBottom: 36, borderBottom: `1px solid ${t.border}` }}>
               <h3 style={{
                 fontSize: 22,
                 fontWeight: 800,
@@ -684,17 +684,43 @@ function EditionContent({ sections, t }: { sections: BriefingSection[]; t: Retur
 
               {article.summary && (
                 <div style={{ marginTop: 20 }}>
-                  {article.summary.split("\n\n").map((paragraph, pIdx) => (
-                    <p key={pIdx} style={{
-                      fontSize: 15,
-                      lineHeight: 1.8,
-                      color: t.body,
-                      margin: 0,
-                      marginTop: pIdx > 0 ? 14 : 0,
-                    }}>
-                      {paragraph}
-                    </p>
-                  ))}
+                  {article.summary.split("\n\n").map((paragraph, pIdx) => {
+                    if (paragraph.startsWith("────")) {
+                      const label = paragraph.replace(/─/g, "").trim();
+                      return (
+                        <div key={pIdx} style={{ marginTop: 28, marginBottom: 14 }}>
+                          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: t.gold, margin: 0 }}>{label}</p>
+                          <div style={{ height: 1, background: t.borderSection, marginTop: 8 }} />
+                        </div>
+                      );
+                    }
+                    if (paragraph.startsWith("•")) {
+                      return (
+                        <p key={pIdx} style={{
+                          fontSize: 14,
+                          lineHeight: 1.75,
+                          color: t.body,
+                          margin: 0,
+                          marginTop: 10,
+                          paddingLeft: 16,
+                          borderLeft: `2px solid ${t.borderSection}`,
+                        }}>
+                          {paragraph.slice(1).trim()}
+                        </p>
+                      );
+                    }
+                    return (
+                      <p key={pIdx} style={{
+                        fontSize: 15,
+                        lineHeight: 1.8,
+                        color: t.body,
+                        margin: 0,
+                        marginTop: pIdx > 0 ? 14 : 0,
+                      }}>
+                        {paragraph}
+                      </p>
+                    );
+                  })}
                 </div>
               )}
 

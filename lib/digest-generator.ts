@@ -148,41 +148,61 @@ ${articlesText}`,
       }[];
     };
 
-    // Build edition with digest format
-    const sections = parsed.sections.map((s) => ({
-      topic: s.topic,
-      label: s.label,
-      emoji: "",
-      items: [
-        {
-          title: `Panorama ${s.label}`,
-          summary: s.panorama,
-          source: `${editions.length} edições analisadas`,
+    // Build edition — one rich item per topic (panorama + highlights + outlook unified)
+    const sections = parsed.sections.map((s) => {
+      const highlightsText = s.highlights.map((h) => `• ${h}`).join("\n\n");
+      const fullSummary = [
+        s.panorama,
+        "──── Destaques ────",
+        highlightsText,
+        "──── O que observar ────",
+        s.outlook,
+      ].join("\n\n");
+
+      // Try to find a cover image from the original articles of this topic
+      const topicArticles = byTopic[s.label] || [];
+      const coverImage = topicArticles.find((a) => {
+        // Check if any edition has this article with an image
+        for (const ed of editions) {
+          for (const sec of ed.sections) {
+            for (const item of sec.items) {
+              if (item.title === a.title && item.image) return true;
+            }
+          }
+        }
+        return false;
+      });
+
+      // Find the actual image URL
+      let image: string | null = null;
+      if (coverImage) {
+        for (const ed of editions) {
+          for (const sec of ed.sections) {
+            for (const item of sec.items) {
+              if (item.title === coverImage.title && item.image) {
+                image = item.image;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      return {
+        topic: s.topic,
+        label: s.label,
+        emoji: "",
+        items: [{
+          title: `${s.label} — ${type === "weekly" ? "Panorama Semanal" : "Panorama Mensal"}`,
+          summary: fullSummary,
+          source: `Baseado em ${editions.length} edições · ${(byTopic[s.label] || []).length} matérias`,
           link: "",
           publishedAt: now.toISOString(),
           topic: s.topic,
-          image: null,
-        },
-        {
-          title: `Destaques ${s.label}`,
-          summary: s.highlights.map((h) => `• ${h}`).join("\n\n"),
-          source: "",
-          link: "",
-          publishedAt: now.toISOString(),
-          topic: s.topic,
-          image: null,
-        },
-        {
-          title: `O que observar`,
-          summary: s.outlook,
-          source: "",
-          link: "",
-          publishedAt: now.toISOString(),
-          topic: s.topic,
-          image: null,
-        },
-      ],
-    }));
+          image,
+        }],
+      };
+    });
 
     const marketData = await fetchMarketData();
 
