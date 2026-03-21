@@ -171,46 +171,59 @@ export default function NewsletterPage() {
         </div>
       </nav>
 
-      {/* ─── Edition Detail (with sidebar) ─────────────────── */}
-      {view === "edition" && openEdition && (
-        <>
-          {/* Edition header */}
-          <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px 0", textAlign: "center" }}>
-            <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: t.gold, margin: 0 }}>
-              Briefing diário
-            </p>
-            <p style={{ marginTop: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: t.muted, textTransform: "capitalize" }}>
-              {openEdition.dateLabel}
-            </p>
-            <div style={{ width: 40, height: 1, background: t.gold, margin: "20px auto 0", opacity: 0.3 }} />
-          </div>
+      {/* ─── Edition Detail ─────────────────────────────────── */}
+      {view === "edition" && openEdition && (() => {
+        const isDigest = openEdition.id.includes("-W") || openEdition.id.includes("-M");
+        const editionType = openEdition.id.includes("-W") ? "Resumo Semanal" : openEdition.id.includes("-M") ? "Resumo Mensal" : "Briefing Diário";
 
-          {/* 3-column layout: left sidebar | content | right sidebar */}
-          <div style={{
-            maxWidth: 1400,
-            margin: "0 auto",
-            padding: "0 24px",
-            display: "flex",
-            justifyContent: "center",
-            gap: 32,
-            position: "relative",
-          }}>
-            {/* Left sidebar */}
-            <SidebarLeft edition={openEdition} t={t} />
+        return (
+          <>
+            {/* Edition header */}
+            <div style={{ maxWidth: isDigest ? 800 : 680, margin: "0 auto", padding: "48px 24px 0", textAlign: "center" }}>
+              <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase" as const, color: t.gold, margin: 0 }}>
+                {editionType}
+              </p>
+              <p style={{ marginTop: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: t.muted, textTransform: "capitalize" }}>
+                {openEdition.dateLabel}
+              </p>
+              {isDigest && (
+                <p style={{ marginTop: 6, fontSize: 13, color: t.body }}>
+                  {openEdition.articleCount} matérias analisadas · {openEdition.sections.length} editorias
+                </p>
+              )}
+              <div style={{ width: 40, height: 1, background: t.gold, margin: "20px auto 0", opacity: 0.3 }} />
+            </div>
 
-            {/* Main content (centered) */}
-            <main style={{ width: "100%", maxWidth: 680, minWidth: 0 }}>
-              <EditionContent sections={openEdition.sections} t={t} />
-              <SubscribeBox t={t} />
-            </main>
+            {isDigest ? (
+              /* Digest: full-width, no sidebars */
+              <main style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px" }}>
+                <EditionContent sections={openEdition.sections} t={t} />
+                <SubscribeBox t={t} />
+              </main>
+            ) : (
+              /* Daily: 3-column with sidebars */
+              <div style={{
+                maxWidth: 1400,
+                margin: "0 auto",
+                padding: "0 24px",
+                display: "flex",
+                justifyContent: "center",
+                gap: 32,
+                position: "relative",
+              }}>
+                <SidebarLeft edition={openEdition} t={t} />
+                <main style={{ width: "100%", maxWidth: 680, minWidth: 0 }}>
+                  <EditionContent sections={openEdition.sections} t={t} />
+                  <SubscribeBox t={t} />
+                </main>
+                <SidebarRight edition={openEdition} t={t} />
+              </div>
+            )}
 
-            {/* Right sidebar */}
-            <SidebarRight edition={openEdition} t={t} />
-          </div>
-
-          <Footer t={t} />
-        </>
-      )}
+            <Footer t={t} />
+          </>
+        );
+      })()}
 
       {/* ─── Home View ────────────────────────────────────── */}
       {view === "home" && (() => {
