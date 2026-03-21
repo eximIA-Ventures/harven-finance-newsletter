@@ -159,32 +159,43 @@ ${articlesText}`,
         s.outlook,
       ].join("\n\n");
 
-      // Try to find a cover image from the original articles of this topic
-      const topicArticles = byTopic[s.label] || [];
-      const coverImage = topicArticles.find((a) => {
-        // Check if any edition has this article with an image
-        for (const ed of editions) {
-          for (const sec of ed.sections) {
-            for (const item of sec.items) {
-              if (item.title === a.title && item.image) return true;
-            }
-          }
-        }
-        return false;
-      });
+      // Find a cover image for this topic — avoid using the same image
+      // as the first article of the latest daily edition (which shows on the home grid)
+      const usedImages = new Set<string>();
 
-      // Find the actual image URL
+      // Collect images used as "cover" in daily editions (first article with image per edition)
+      for (const ed of editions) {
+        const firstWithImage = ed.sections.flatMap((sec) => sec.items).find((item) => item.image);
+        if (firstWithImage?.image) usedImages.add(firstWithImage.image);
+      }
+
+      // Find an image from this topic's articles that isn't already used as a daily cover
       let image: string | null = null;
-      if (coverImage) {
-        for (const ed of editions) {
-          for (const sec of ed.sections) {
-            for (const item of sec.items) {
-              if (item.title === coverImage.title && item.image) {
-                image = item.image;
-                break;
-              }
+      for (const ed of editions) {
+        for (const sec of ed.sections) {
+          if (sec.label !== s.label) continue;
+          for (const item of sec.items) {
+            if (item.image && !usedImages.has(item.image)) {
+              image = item.image;
+              break;
             }
           }
+          if (image) break;
+        }
+        if (image) break;
+      }
+
+      // Fallback: use any image from this topic even if duplicated
+      if (!image) {
+        for (const ed of editions) {
+          for (const sec of ed.sections) {
+            if (sec.label !== s.label) continue;
+            for (const item of sec.items) {
+              if (item.image) { image = item.image; break; }
+            }
+            if (image) break;
+          }
+          if (image) break;
         }
       }
 
