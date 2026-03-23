@@ -1,7 +1,9 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const cron = await import("node-cron");
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3007";
+    // Always use localhost for internal cron calls (container can't resolve external hostname)
+    const port = process.env.PORT || "3000";
+    const baseUrl = `http://localhost:${port}`;
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (process.env.CRON_SECRET) {
       headers["Authorization"] = `Bearer ${process.env.CRON_SECRET}`;
