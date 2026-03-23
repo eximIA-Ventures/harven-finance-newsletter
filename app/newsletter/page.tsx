@@ -58,8 +58,9 @@ export default function NewsletterPage() {
     loadEditions();
   }, []);
 
-  const latestEdition = editions[0] || null;
-  const pastEditions = editions.slice(1);
+  // Latest daily edition for hero (skip digests)
+  const latestEdition = editions.find((e) => !e.id.includes("-W") && !e.id.includes("-M")) || editions[0] || null;
+  const pastEditions = editions.filter((e) => e !== latestEdition);
   const openEdition = openEditionId
     ? editions.find((e) => e.id === openEditionId) || null
     : null;

@@ -38,7 +38,14 @@ export function getAllEditions(): StoredEdition[] {
   if (!existsSync(EDITIONS_FILE)) return [];
   try {
     const raw = readFileSync(EDITIONS_FILE, "utf-8");
-    return JSON.parse(raw);
+    const editions: StoredEdition[] = JSON.parse(raw);
+    // Always sort: most recent first, daily before digests on same date
+    return editions.sort((a, b) => {
+      // Compare by date descending
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA;
+    });
   } catch {
     return [];
   }
