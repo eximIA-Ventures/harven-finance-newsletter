@@ -105,11 +105,27 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // 0. Check if today's edition already exists — don't regenerate or resend
+    const todayId = new Date().toISOString().slice(0, 10);
+    const existingEditions = getAllEditions();
+    const todayEdition = existingEditions.find((e) => e.id === todayId);
+
+    if (todayEdition) {
+      console.log(`[BRIEFING] Edition ${todayId} already exists — skipping generation and email`);
+      return NextResponse.json({
+        edition: todayEdition,
+        generated: false,
+        skipped: true,
+        articleCount: todayEdition.articleCount,
+        email: { sent: 0, failed: 0, errors: [] },
+      });
+    }
+
     // 1. Fetch all feeds
     const { articles } = await parseAllFeeds(defaultFeeds);
 
     // 2. Build set of URLs already used in previous editions (dedup cross-day)
-    const previousEditions = getAllEditions();
+    const previousEditions = existingEditions;
     const usedUrls = new Set<string>();
     for (const ed of previousEditions) {
       for (const section of ed.sections) {
