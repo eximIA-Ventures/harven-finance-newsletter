@@ -72,6 +72,14 @@ export function Header({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Newsletter link */}
+            <a
+              href="/newsletter"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-accent transition-all duration-normal hover:bg-elevated"
+            >
+              ← Newsletter
+            </a>
+
             {/* Search */}
             <div className="relative hidden md:block">
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
