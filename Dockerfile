@@ -35,6 +35,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Create data dir for editions persistence
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
+# Set timezone for cron accuracy
+ENV TZ=America/Sao_Paulo
+
 USER nextjs
 
 EXPOSE 3000

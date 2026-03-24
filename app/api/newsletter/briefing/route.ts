@@ -312,14 +312,19 @@ ${articlesPrompt}`,
     const sections = buildSections(finalArticles);
     const edition = await persistEditionWithMarket(sections, finalArticles.length);
 
-    // Send to subscribers
-    const emailResult = await sendNewsletterToSubscribers(edition);
+    // Send to subscribers (skip if ?skipEmail=true)
+    const skipEmail = request.nextUrl.searchParams.get("skipEmail") === "true";
+    let emailResult = { sent: 0, failed: 0, errors: [] as string[] };
+    if (!skipEmail) {
+      emailResult = await sendNewsletterToSubscribers(edition);
+    }
 
     return NextResponse.json({
       edition,
       generated: true,
       articleCount: finalArticles.length,
       email: emailResult,
+      emailSkipped: skipEmail,
     });
   } catch (error) {
     console.error("Briefing generation error:", error);
