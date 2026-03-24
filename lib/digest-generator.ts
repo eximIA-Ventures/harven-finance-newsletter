@@ -5,8 +5,8 @@ import { fetchMarketData } from "./market-data";
 type DigestType = "weekly" | "monthly";
 
 // Get editions within a date range
-function getEditionsInRange(start: Date, end: Date): StoredEdition[] {
-  const all = getAllEditions();
+async function getEditionsInRange(start: Date, end: Date): Promise<StoredEdition[]> {
+  const all = await getAllEditions();
   return all.filter((ed) => {
     // Only include daily editions (not other digests)
     if (ed.id.includes("week") || ed.id.includes("month")) return false;
@@ -56,7 +56,7 @@ export async function generateDigest(type: DigestType): Promise<StoredEdition | 
     label = `Resumo Mensal — ${monthName.charAt(0).toUpperCase() + monthName.slice(1)}`;
   }
 
-  const editions = getEditionsInRange(start, now);
+  const editions = await getEditionsInRange(start, now);
 
   if (editions.length === 0) {
     console.log(`[DIGEST] No editions found for ${type} digest`);
@@ -255,7 +255,7 @@ ${articlesText}`,
       sections,
     };
 
-    saveEdition(edition);
+    await saveEdition(edition);
     console.log(`[DIGEST] ${type} digest saved: ${id}`);
     return edition;
   } catch {
@@ -263,13 +263,13 @@ ${articlesText}`,
   }
 }
 
-function buildFallbackDigest(
+async function buildFallbackDigest(
   id: string,
   label: string,
   type: DigestType,
   byTopic: Record<string, { title: string; summary: string; source: string; topic: string; date: string }[]>,
   editionCount: number
-): StoredEdition {
+): Promise<StoredEdition> {
   const topicLabels: Record<string, string> = {
     "Agronegócio": "agro",
     "Finanças": "finance",
@@ -300,7 +300,7 @@ function buildFallbackDigest(
     sections,
   };
 
-  saveEdition(edition);
+  await saveEdition(edition);
   return edition;
 }
 

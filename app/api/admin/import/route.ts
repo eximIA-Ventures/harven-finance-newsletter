@@ -10,21 +10,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "editions must be an array" }, { status: 400 });
     }
 
-    const existing = getAllEditions();
+    const existing = await getAllEditions();
     const existingIds = new Set(existing.map((e) => e.id));
     let imported = 0;
 
     for (const ed of editions) {
       if (!existingIds.has(ed.id)) {
-        saveEdition(ed);
+        await saveEdition(ed);
         imported++;
       }
     }
 
+    const updated = await getAllEditions();
     return NextResponse.json({
       success: true,
       imported,
-      total: getAllEditions().length,
+      total: updated.length,
     });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });

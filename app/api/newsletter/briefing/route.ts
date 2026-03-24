@@ -88,7 +88,7 @@ async function fetchArticleData(url: string): Promise<{ content: string; image: 
 // ═════════════════════════════════════════════════════════
 
 export async function GET() {
-  const editions = getAllEditions();
+  const editions = await getAllEditions();
   return NextResponse.json({ editions });
 }
 
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
   try {
     // 0. Check if today's edition already exists — don't regenerate or resend
     const todayId = new Date().toISOString().slice(0, 10);
-    const existingEditions = getAllEditions();
+    const existingEditions = await getAllEditions();
     const todayEdition = existingEditions.find((e) => e.id === todayId);
 
     if (todayEdition) {
@@ -342,7 +342,7 @@ async function persistEditionWithMarket(sections: BriefingSection[], articleCoun
   return persistEdition(sections, articleCount, marketData);
 }
 
-function persistEdition(sections: BriefingSection[], articleCount: number, marketData?: any[]): StoredEdition {
+async function persistEdition(sections: BriefingSection[], articleCount: number, marketData?: any[]): Promise<StoredEdition> {
   const todayId = new Date().toISOString().slice(0, 10);
   const todayLabel = new Date().toLocaleDateString("pt-BR", {
     weekday: "long",
@@ -360,7 +360,7 @@ function persistEdition(sections: BriefingSection[], articleCount: number, marke
     marketData: marketData || undefined,
     sections,
   };
-  saveEdition(edition);
+  await saveEdition(edition);
   return edition;
 }
 
