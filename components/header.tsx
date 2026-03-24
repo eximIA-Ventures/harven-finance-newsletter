@@ -45,9 +45,9 @@ export function Header({
     <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur-md">
       <div className="mx-auto max-w-[1600px] px-3 sm:px-4 md:px-6">
         {/* Top row */}
-        <div className="flex items-center justify-between py-2 sm:py-3">
+        <div className="flex items-center justify-between py-2 sm:py-3 gap-2">
           {/* Brand mark */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-shrink-0">
             <img
               src="/harven-finance-logo-dark.png"
               alt="Harven Finance"
@@ -59,8 +59,8 @@ export function Header({
               className="h-5 sm:h-7 w-auto light-logo hidden"
             />
             <div className="h-5 w-[1px] bg-border hidden sm:block" />
-            <div className="min-w-0">
-              <h1 className="text-sm sm:text-lg font-bold tracking-tight text-primary">
+            <div className="min-w-0 hidden sm:block">
+              <h1 className="text-lg font-bold tracking-tight text-primary">
                 Dashboard
               </h1>
               {fetchedAt && (
@@ -71,16 +71,17 @@ export function Header({
             </div>
           </div>
 
+          {/* Actions — minimal on mobile */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Newsletter link */}
             <a
               href="/newsletter"
-              className="flex items-center gap-1.5 rounded-lg border border-border px-2 sm:px-2.5 py-1.5 text-xs font-medium text-accent transition-all duration-normal hover:bg-elevated"
+              className="flex items-center rounded-lg border border-border px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-medium text-accent transition-all duration-normal hover:bg-elevated"
             >
-              <span className="hidden sm:inline">←</span> Newsletter
+              <span className="hidden sm:inline">← </span>Newsletter
             </a>
 
-            {/* Search */}
+            {/* Search — desktop only */}
             <div className="relative hidden md:block">
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
               <input
@@ -92,7 +93,7 @@ export function Header({
               />
             </div>
 
-            {/* Action buttons — icon-only on mobile */}
+            {/* Bookmarks */}
             <button
               onClick={onOpenBookmarks}
               className="relative flex items-center gap-1.5 rounded-lg border border-border px-2 sm:px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
@@ -106,12 +107,13 @@ export function Header({
               )}
             </button>
 
+            {/* Topics & Sources — desktop only */}
             <button
               onClick={onOpenTopicManager}
               className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
             >
               <Tags className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Tópicos</span>
+              <span>Tópicos</span>
             </button>
 
             <button
@@ -119,16 +121,26 @@ export function Header({
               className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
             >
               <Rss className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Fontes</span>
+              <span>Fontes</span>
             </button>
 
-            <RefreshIndicator
-              autoRefresh={autoRefresh}
-              secondsUntilRefresh={secondsUntilRefresh}
-              isLoading={isLoading}
-              onToggleAutoRefresh={onToggleAutoRefresh}
-              onRefresh={onRefresh}
-            />
+            {/* Refresh — full on desktop, icon-only on mobile */}
+            <div className="hidden sm:flex">
+              <RefreshIndicator
+                autoRefresh={autoRefresh}
+                secondsUntilRefresh={secondsUntilRefresh}
+                isLoading={isLoading}
+                onToggleAutoRefresh={onToggleAutoRefresh}
+                onRefresh={onRefresh}
+              />
+            </div>
+            <button
+              onClick={onRefresh}
+              disabled={isLoading}
+              className="sm:hidden flex items-center justify-center rounded-lg p-1.5 border border-border text-muted disabled:opacity-50"
+            >
+              <svg className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+            </button>
           </div>
         </div>
 
@@ -141,12 +153,12 @@ export function Header({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Buscar artigos..."
-              className="w-full rounded-lg border border-border bg-elevated py-2 pl-8 pr-3 text-sm text-primary placeholder:text-muted/50 focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/30 transition-all duration-normal"
+              className="w-full rounded-lg border border-border bg-elevated py-1.5 pl-8 pr-3 text-xs text-primary placeholder:text-muted/50 focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/30 transition-all duration-normal"
             />
           </div>
         </div>
 
-        {/* Gold accent bar — from Harven Finance logo */}
+        {/* Gold accent bar */}
         <div className="gold-bar mb-2 sm:mb-3" />
 
         {/* Topic filter chips */}
@@ -178,7 +190,7 @@ export function Header({
               />
             ))}
 
-          {/* Mobile-only: topic & source manager buttons inline */}
+          {/* Mobile-only: topic & source manager */}
           <button
             onClick={onOpenTopicManager}
             className="sm:hidden flex-shrink-0 flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] text-muted"
