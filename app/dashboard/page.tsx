@@ -136,12 +136,12 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-bg transition-colors duration-300">
       {/* Theme toggle */}
-      <div style={{ position: "fixed", top: 16, right: 16, zIndex: 60 }}>
+      <div style={{ position: "fixed", bottom: 16, right: 16, zIndex: 60 }}>
         <button
           onClick={() => setDark(!dark)}
-          className="flex items-center justify-center w-8 h-8 rounded-full border border-border bg-surface transition-all hover:bg-elevated"
+          className="flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 rounded-full border border-border bg-surface shadow-lg transition-all hover:bg-elevated"
         >
-          {dark ? <Sun className="w-3.5 h-3.5 text-accent" /> : <Moon className="w-3.5 h-3.5 text-muted" />}
+          {dark ? <Sun className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-accent" /> : <Moon className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-muted" />}
         </button>
       </div>
 
@@ -163,7 +163,7 @@ export default function DashboardPage() {
         onSearchChange={setSearchQuery}
       />
 
-      <main className="mx-auto max-w-[1600px] px-4 md:px-6 py-6">
+      <main className="mx-auto max-w-[1600px] px-3 sm:px-4 md:px-6 py-4 sm:py-6">
         {/* Error state */}
         {error && (
           <div className="mb-6 rounded-xl border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">

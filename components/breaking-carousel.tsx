@@ -32,11 +32,11 @@ export function BreakingCarousel({
       </div>
 
       {isLoading ? (
-        <div className="flex gap-4 overflow-x-auto scroll-hidden pb-2">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto scroll-hidden pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="min-w-[280px] max-w-[320px] rounded-xl border border-border bg-surface p-4"
+              className="min-w-[240px] sm:min-w-[280px] max-w-[320px] rounded-xl border border-border bg-surface p-3 sm:p-4"
             >
               <div className="mb-3 flex justify-between">
                 <div className="skeleton h-4 w-20" />
@@ -50,7 +50,7 @@ export function BreakingCarousel({
           ))}
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto scroll-hidden pb-2">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto scroll-hidden pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
           {latestArticles.map((article) => (
             <ArticleCard
               key={article.id}

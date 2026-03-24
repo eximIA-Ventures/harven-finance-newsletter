@@ -18,9 +18,9 @@ export function ArticleRow({
   onToggleBookmark,
 }: ArticleRowProps) {
   return (
-    <div className="group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-all duration-fast hover:bg-elevated/70 animate-fade-in">
+    <div className="group flex items-start gap-2 sm:gap-3 rounded-lg px-2 sm:px-3 py-2 sm:py-2.5 transition-all duration-fast hover:bg-elevated/70 animate-fade-in">
       {/* Time */}
-      <span className="mt-0.5 min-w-[60px] text-[11px] text-muted font-mono tabular-nums whitespace-nowrap">
+      <span className="mt-0.5 min-w-[48px] sm:min-w-[60px] text-[10px] sm:text-[11px] text-muted font-mono tabular-nums whitespace-nowrap">
         {timeAgo(article.publishedAt)}
       </span>
 
@@ -32,12 +32,12 @@ export function ArticleRow({
           rel="noopener noreferrer"
           className="block"
         >
-          <h4 className="text-sm font-medium text-primary leading-snug group-hover:text-accent transition-colors duration-fast truncate">
+          <h4 className="text-[13px] sm:text-sm font-medium text-primary leading-snug group-hover:text-accent transition-colors duration-fast line-clamp-2 sm:truncate">
             {article.title}
           </h4>
         </a>
         {article.description && (
-          <p className="mt-0.5 text-xs text-secondary/70 truncate">
+          <p className="mt-0.5 text-xs text-secondary/70 line-clamp-1">
             {truncate(article.description, 150)}
           </p>
         )}
@@ -54,8 +54,8 @@ export function ArticleRow({
         )}
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-fast">
+      {/* Actions — always visible on mobile, hover on desktop */}
+      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-fast flex-shrink-0">
         <BookmarkButton
           isBookmarked={isBookmarked}
           onClick={() => onToggleBookmark(article)}

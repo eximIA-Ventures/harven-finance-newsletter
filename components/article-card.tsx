@@ -17,7 +17,7 @@ export function ArticleCard({
   onToggleBookmark,
 }: ArticleCardProps) {
   return (
-    <div className="group relative flex flex-col min-w-[280px] max-w-[320px] rounded-xl border border-border bg-surface p-4 transition-all duration-normal hover:border-muted/50 hover:bg-elevated animate-fade-in">
+    <div className="group relative flex flex-col min-w-[240px] sm:min-w-[280px] max-w-[320px] rounded-xl border border-border bg-surface p-3 sm:p-4 transition-all duration-normal hover:border-muted/50 hover:bg-elevated animate-fade-in">
       {/* Top row: source + time */}
       <div className="mb-2 flex items-center justify-between gap-2">
         <span

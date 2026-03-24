@@ -43,24 +43,24 @@ export function Header({
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur-md">
-      <div className="mx-auto max-w-[1600px] px-4 md:px-6">
+      <div className="mx-auto max-w-[1600px] px-3 sm:px-4 md:px-6">
         {/* Top row */}
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between py-2 sm:py-3">
           {/* Brand mark */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <img
               src="/harven-finance-logo-dark.png"
               alt="Harven Finance"
-              className="h-7 w-auto dark-logo hidden"
+              className="h-5 sm:h-7 w-auto dark-logo hidden"
             />
             <img
               src="/harven-finance-logo.png"
               alt="Harven Finance"
-              className="h-7 w-auto light-logo hidden"
+              className="h-5 sm:h-7 w-auto light-logo hidden"
             />
-            <div className="h-5 w-[1px] bg-border" />
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-primary">
+            <div className="h-5 w-[1px] bg-border hidden sm:block" />
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-lg font-bold tracking-tight text-primary">
                 Dashboard
               </h1>
               {fetchedAt && (
@@ -71,13 +71,13 @@ export function Header({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Newsletter link */}
             <a
               href="/newsletter"
-              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-accent transition-all duration-normal hover:bg-elevated"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-2 sm:px-2.5 py-1.5 text-xs font-medium text-accent transition-all duration-normal hover:bg-elevated"
             >
-              ← Newsletter
+              <span className="hidden sm:inline">←</span> Newsletter
             </a>
 
             {/* Search */}
@@ -92,10 +92,10 @@ export function Header({
               />
             </div>
 
-            {/* Action buttons */}
+            {/* Action buttons — icon-only on mobile */}
             <button
               onClick={onOpenBookmarks}
-              className="relative flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
+              className="relative flex items-center gap-1.5 rounded-lg border border-border px-2 sm:px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
             >
               <Bookmark className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Favoritos</span>
@@ -108,7 +108,7 @@ export function Header({
 
             <button
               onClick={onOpenTopicManager}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
+              className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
             >
               <Tags className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Tópicos</span>
@@ -116,7 +116,7 @@ export function Header({
 
             <button
               onClick={onOpenSourceManager}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
+              className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted transition-all duration-normal hover:bg-elevated hover:text-secondary"
             >
               <Rss className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Fontes</span>
@@ -132,15 +132,29 @@ export function Header({
           </div>
         </div>
 
+        {/* Mobile search bar */}
+        <div className="md:hidden pb-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Buscar artigos..."
+              className="w-full rounded-lg border border-border bg-elevated py-2 pl-8 pr-3 text-sm text-primary placeholder:text-muted/50 focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/30 transition-all duration-normal"
+            />
+          </div>
+        </div>
+
         {/* Gold accent bar — from Harven Finance logo */}
-        <div className="gold-bar mb-3" />
+        <div className="gold-bar mb-2 sm:mb-3" />
 
         {/* Topic filter chips */}
-        <div className="flex items-center gap-2 overflow-x-auto scroll-hidden pb-3">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scroll-hidden pb-2 sm:pb-3">
           <button
             onClick={() => onSelectTopic(null)}
             className={cn(
-              "flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-all duration-normal",
+              "flex-shrink-0 rounded-full px-2.5 sm:px-3 py-1 text-xs font-medium border transition-all duration-normal",
               selectedTopicId === null
                 ? "bg-accent/15 text-accent border-accent/30"
                 : "bg-transparent text-muted border-border hover:text-secondary"
@@ -163,6 +177,20 @@ export function Header({
                 size="sm"
               />
             ))}
+
+          {/* Mobile-only: topic & source manager buttons inline */}
+          <button
+            onClick={onOpenTopicManager}
+            className="sm:hidden flex-shrink-0 flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] text-muted"
+          >
+            <Tags className="h-3 w-3" /> Editar
+          </button>
+          <button
+            onClick={onOpenSourceManager}
+            className="sm:hidden flex-shrink-0 flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] text-muted"
+          >
+            <Rss className="h-3 w-3" /> Fontes
+          </button>
         </div>
       </div>
     </header>

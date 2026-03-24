@@ -35,7 +35,7 @@ export function SourceFeed({
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-3 px-4 py-3 transition-colors duration-fast hover:bg-elevated/50"
+        className="flex w-full items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 transition-colors duration-fast hover:bg-elevated/50"
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {expanded ? (
