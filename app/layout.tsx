@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnalyticsProvider } from "@/components/analytics-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-bg">
+        <AnalyticsProvider />
         {children}
       </body>
     </html>

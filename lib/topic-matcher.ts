@@ -11,7 +11,8 @@ export function matchArticleToTopics(
   topics: Topic[]
 ): TopicMatch[] {
   const matches: TopicMatch[] = [];
-  const searchText = `${article.title} ${article.description}`.toLowerCase();
+  const titleText = article.title.toLowerCase();
+  const descText = article.description.toLowerCase();
 
   for (const topic of topics) {
     if (!topic.enabled) continue;
@@ -21,12 +22,9 @@ export function matchArticleToTopics(
 
     for (const keyword of topic.keywords) {
       const kw = keyword.toLowerCase();
-      // Count occurrences in title (weight 3x) and description (weight 1x)
-      const titleMatches = countOccurrences(
-        article.title.toLowerCase(),
-        kw
-      );
-      const descMatches = countOccurrences(searchText, kw);
+      const titleMatches = countOccurrences(titleText, kw);
+      // Cap body matches at 3 per keyword to prevent keyword-stuffing inflation
+      const descMatches = Math.min(countOccurrences(descText, kw), 3);
 
       if (titleMatches > 0 || descMatches > 0) {
         matchedKeywords.push(keyword);
@@ -52,13 +50,30 @@ function countOccurrences(text: string, keyword: string): number {
   return count;
 }
 
+// ── Recency multiplier — fresher articles score higher ──
+
+function getRecencyMultiplier(publishedAt: string): number {
+  const ageMs = Date.now() - new Date(publishedAt).getTime();
+  const ageHours = ageMs / (1000 * 60 * 60);
+
+  if (ageHours < 2) return 1.5;
+  if (ageHours < 6) return 1.2;
+  if (ageHours < 12) return 1.0;
+  if (ageHours < 24) return 0.8;
+  return 0.5;
+}
+
 export function enrichArticlesWithTopics(
   articles: FeedArticle[],
-  topics: Topic[]
+  topics: Topic[],
+  sourceWeights?: Map<string, number>
 ): ArticleWithTopics[] {
   return articles.map((article) => {
     const topicMatches = matchArticleToTopics(article, topics);
-    const relevanceScore = topicMatches.reduce((sum, m) => sum + m.score, 0);
+    const rawScore = topicMatches.reduce((sum, m) => sum + m.score, 0);
+    const sourceWeight = sourceWeights?.get(article.sourceId) ?? 1.0;
+    const recency = getRecencyMultiplier(article.publishedAt);
+    const relevanceScore = rawScore * sourceWeight * recency;
     return {
       ...article,
       topics: topicMatches,

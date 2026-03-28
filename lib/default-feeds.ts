@@ -1,7 +1,7 @@
 import { FeedSource } from "./types";
 
 export const defaultFeeds: FeedSource[] = [
-  // ── AGRO ──────────────────────────────────────────────
+  // ── AGRO (Bronze — specialized agro sources) ─────────
   {
     id: "canalrural",
     name: "Canal Rural",
@@ -9,6 +9,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "agro",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.0,
   },
   {
     id: "agrolink",
@@ -17,6 +18,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "agro",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.0,
   },
   {
     id: "noticiasagricolas",
@@ -25,6 +27,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "agro",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.0,
   },
   {
     id: "revistagloborural",
@@ -33,6 +36,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "agro",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.2,
   },
   {
     id: "sucessonocampo",
@@ -41,6 +45,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "agro",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.0,
   },
 
   // ── FINANÇAS ──────────────────────────────────────────
@@ -51,6 +56,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 2.0,
   },
   {
     id: "reuters",
@@ -59,6 +65,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 2.0,
   },
   {
     id: "ft",
@@ -67,6 +74,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 2.0,
   },
   {
     id: "infomoney",
@@ -75,6 +83,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.5,
   },
   {
     id: "valoreconomico",
@@ -83,6 +92,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.5,
   },
   {
     id: "exame",
@@ -91,6 +101,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.5,
   },
   {
     id: "investingnews",
@@ -99,6 +110,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "business",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.0,
   },
 
   // ── GEOPOLÍTICA ───────────────────────────────────────
@@ -109,6 +121,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "brazil",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.5,
   },
   {
     id: "aljazeera",
@@ -117,6 +130,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "brazil",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.5,
   },
   {
     id: "foreignaffairs",
@@ -125,6 +139,7 @@ export const defaultFeeds: FeedSource[] = [
     category: "brazil",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 2.0,
   },
   {
     id: "folha",
@@ -133,5 +148,6 @@ export const defaultFeeds: FeedSource[] = [
     category: "brazil",
     enabled: true,
     isDefault: true,
+    credibilityWeight: 1.5,
   },
 ];

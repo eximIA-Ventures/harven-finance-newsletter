@@ -5,6 +5,8 @@ export interface FeedSource {
   category: FeedCategory;
   enabled: boolean;
   isDefault: boolean;
+  /** Source credibility weight: 1.0 (bronze) → 1.5 (silver) → 2.0 (gold) */
+  credibilityWeight?: number;
 }
 
 export type FeedCategory =

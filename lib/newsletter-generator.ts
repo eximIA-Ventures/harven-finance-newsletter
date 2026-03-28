@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { parseAllFeeds } from "./feed-parser";
 import { enrichArticlesWithTopics } from "./topic-matcher";
+import { curateArticles } from "./curation-engine";
 import { defaultFeeds } from "./default-feeds";
 import { defaultTopics } from "./default-topics";
 import { ArticleWithTopics } from "./types";
@@ -34,7 +35,14 @@ export interface NewsletterEdition {
 
 // ── Config ──────────────────────────────────────────────
 
-const ARTICLES_PER_TOPIC = 3;  // Top 3 per topic = ~9 total
+const CANDIDATES_PER_TOPIC = 8;     // Candidate pool for AI curation
+const FINAL_ARTICLES_PER_TOPIC = 3; // Final selection after curation
+
+// ── Source credibility map ──────────────────────────────
+
+const SOURCE_WEIGHTS = new Map(
+  defaultFeeds.map((f) => [f.id, f.credibilityWeight ?? 1.0])
+);
 
 // ── Pipeline ────────────────────────────────────────────
 
@@ -42,19 +50,22 @@ export async function generateNewsletter(): Promise<NewsletterEdition> {
   // Step 1: Fetch all feeds
   const { articles } = await parseAllFeeds(defaultFeeds);
 
-  // Step 2: Enrich with topic matching
-  const enriched = enrichArticlesWithTopics(articles, defaultTopics);
+  // Step 2: Enrich with topic matching (+ source weight + recency)
+  const enriched = enrichArticlesWithTopics(articles, defaultTopics, SOURCE_WEIGHTS);
 
-  // Step 3: Group by topic and pick top articles
-  const grouped = groupByTopic(enriched);
+  // Step 3: Group by topic and pick candidate pool (top 8)
+  const candidates = groupByTopic(enriched);
 
-  // Step 4: AI synthesis — generate summaries
-  const sections = await synthesizeWithAI(grouped);
+  // Step 4: AI curation — semantic dedup + impact scoring → top 3
+  const curated = await curateArticles(candidates, FINAL_ARTICLES_PER_TOPIC);
 
-  // Step 5: Generate headline
+  // Step 5: AI synthesis — generate summaries
+  const sections = await synthesizeWithAI(curated);
+
+  // Step 6: Generate headline
   const headline = await generateHeadline(sections);
 
-  // Step 6: Render HTML
+  // Step 7: Render HTML
   const now = new Date();
   const dateLabel = now.toLocaleDateString("pt-BR", {
     weekday: "long",
@@ -101,7 +112,7 @@ function groupByTopic(
     }
   }
 
-  // Deduplicate and sort by relevance, take top N
+  // Deduplicate by link, sort by relevance, take candidate pool
   for (const topicId of Object.keys(groups)) {
     const seen = new Set<string>();
     groups[topicId] = groups[topicId]
@@ -111,7 +122,7 @@ function groupByTopic(
         return true;
       })
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
-      .slice(0, ARTICLES_PER_TOPIC);
+      .slice(0, CANDIDATES_PER_TOPIC);
   }
 
   return groups;
