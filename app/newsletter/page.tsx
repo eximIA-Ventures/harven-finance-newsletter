@@ -301,7 +301,7 @@ export default function NewsletterPage() {
                     <div style={{ display: "flex", flexDirection: window.innerWidth < 640 ? "column" : "row" as any }}>
                       {/* Image */}
                       {validImage(heroArticle.image) && (
-                        <div style={{ flexShrink: 0, width: "50%", minHeight: 220, overflow: "hidden" }}>
+                        <div style={{ flexShrink: 0, width: window.innerWidth < 640 ? "100%" : "50%", minHeight: 220, overflow: "hidden" }}>
                           <img
                             src={heroArticle.image!}
                             alt=""
