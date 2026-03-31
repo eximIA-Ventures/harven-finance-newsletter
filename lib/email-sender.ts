@@ -34,10 +34,20 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
   let failed = 0;
   const errors: string[] = [];
 
+  // Filter out invalid emails (must have @ and valid domain with TLD)
+  const validSubscribers = subscribers.filter((sub) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sub.email)
+  );
+
+  if (validSubscribers.length < subscribers.length) {
+    console.log(`[EMAIL] Filtered ${subscribers.length - validSubscribers.length} invalid emails`);
+  }
+
   // Build personalized emails (each has unique unsubscribe URL)
-  const emailPayloads = subscribers.map((sub) => ({
+  // Note: batch API requires `to` as array
+  const emailPayloads = validSubscribers.map((sub) => ({
     from: `Harven Finance Newsletter <${FROM_EMAIL}>`,
-    to: sub.email,
+    to: [sub.email],
     subject,
     html: baseHtml.replace(
       "{{UNSUB_URL}}",
