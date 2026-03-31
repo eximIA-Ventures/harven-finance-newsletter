@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { getActiveSubscribers } from "./subscriber-store";
 import { StoredEdition } from "./edition-store";
+import { logEmailSend } from "./email-log";
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "newsletter@harvenfinance.com";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3007";
@@ -53,9 +54,14 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
       )
     );
 
-    for (const result of results) {
+    for (let j = 0; j < results.length; j++) {
+      const result = results[j];
+      const recipientEmail = batch[j].email;
+
       if (result.status === "fulfilled" && result.value.data) {
         sent++;
+        const resendId = result.value.data.id || null;
+        logEmailSend(edition.id, recipientEmail, resendId, "sent").catch(() => {});
       } else {
         failed++;
         const err =
@@ -63,6 +69,7 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
             ? result.reason?.message
             : (result.value as any)?.error?.message;
         if (err) errors.push(err);
+        logEmailSend(edition.id, recipientEmail, null, "failed", err).catch(() => {});
       }
     }
   }
