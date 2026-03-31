@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const removed = removeSubscriber(email);
+  const removed = await removeSubscriber(email);
 
   const message = removed
     ? "Você foi descadastrado da Harven Finance Newsletter."

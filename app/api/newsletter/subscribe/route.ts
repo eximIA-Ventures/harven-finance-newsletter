@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = addSubscriber(email);
+    const result = await addSubscriber(email);
 
     return NextResponse.json(result, {
       status: result.success ? 200 : 409,
@@ -28,6 +28,6 @@ export async function POST(request: NextRequest) {
 
 // GET: Count subscribers (admin)
 export async function GET() {
-  const subscribers = getActiveSubscribers();
+  const subscribers = await getActiveSubscribers();
   return NextResponse.json({ count: subscribers.length });
 }

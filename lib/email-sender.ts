@@ -20,61 +20,80 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
   }
 
   const resend = new Resend(apiKey);
-  const subscribers = getActiveSubscribers();
+  const subscribers = await getActiveSubscribers();
 
   if (subscribers.length === 0) {
     console.log("[EMAIL] No active subscribers");
     return { sent: 0, failed: 0, errors: [] };
   }
 
-  const html = buildEmailHtml(edition);
-
-  // Subject: headline only (cleaner in inbox)
+  const baseHtml = buildEmailHtml(edition);
   const subject = edition.headline;
 
   let sent = 0;
   let failed = 0;
   const errors: string[] = [];
 
-  const batchSize = 10;
-  for (let i = 0; i < subscribers.length; i += batchSize) {
-    const batch = subscribers.slice(i, i + batchSize);
+  // Build personalized emails (each has unique unsubscribe URL)
+  const emailPayloads = subscribers.map((sub) => ({
+    from: `Harven Finance Newsletter <${FROM_EMAIL}>`,
+    to: sub.email,
+    subject,
+    html: baseHtml.replace(
+      "{{UNSUB_URL}}",
+      `${BASE_URL}/api/newsletter/unsubscribe?email=${encodeURIComponent(sub.email)}`
+    ),
+  }));
 
-    const results = await Promise.allSettled(
-      batch.map((sub) =>
-        resend.emails.send({
-          from: `Harven Finance Newsletter <${FROM_EMAIL}>`,
-          to: sub.email,
-          subject,
-          html: html.replace(
-            "{{UNSUB_URL}}",
-            `${BASE_URL}/api/newsletter/unsubscribe?email=${encodeURIComponent(sub.email)}`
-          ),
-        })
-      )
-    );
+  // Resend batch API: up to 100 emails per call, rate-limited internally
+  const BATCH_LIMIT = 100;
+  for (let i = 0; i < emailPayloads.length; i += BATCH_LIMIT) {
+    const chunk = emailPayloads.slice(i, i + BATCH_LIMIT);
 
-    for (let j = 0; j < results.length; j++) {
-      const result = results[j];
-      const recipientEmail = batch[j].email;
+    try {
+      const { data, error } = await resend.batch.send(chunk);
 
-      if (result.status === "fulfilled" && result.value.data) {
-        sent++;
-        const resendId = result.value.data.id || null;
-        logEmailSend(edition.id, recipientEmail, resendId, "sent").catch(() => {});
-      } else {
-        failed++;
-        const err =
-          result.status === "rejected"
-            ? result.reason?.message
-            : (result.value as any)?.error?.message;
-        if (err) errors.push(err);
-        logEmailSend(edition.id, recipientEmail, null, "failed", err).catch(() => {});
+      if (error) {
+        // Entire batch failed
+        console.error(`[EMAIL] Batch error:`, error);
+        for (const payload of chunk) {
+          failed++;
+          errors.push(error.message || "Batch send failed");
+          logEmailSend(edition.id, payload.to as string, null, "failed", error.message).catch(() => {});
+        }
+        continue;
       }
+
+      // data.data is an array of { id } for each email
+      const results = data?.data || [];
+      for (let j = 0; j < chunk.length; j++) {
+        const recipientEmail = chunk[j].to as string;
+        const result = results[j];
+        if (result?.id) {
+          sent++;
+          logEmailSend(edition.id, recipientEmail, result.id, "sent").catch(() => {});
+        } else {
+          failed++;
+          errors.push(`No ID returned for ${recipientEmail}`);
+          logEmailSend(edition.id, recipientEmail, null, "failed", "No ID returned").catch(() => {});
+        }
+      }
+    } catch (err: any) {
+      console.error(`[EMAIL] Batch exception:`, err);
+      for (const payload of chunk) {
+        failed++;
+        errors.push(err?.message || "Unknown error");
+        logEmailSend(edition.id, payload.to as string, null, "failed", err?.message).catch(() => {});
+      }
+    }
+
+    // Small delay between batches of 100 (if more than 100 subscribers)
+    if (i + BATCH_LIMIT < emailPayloads.length) {
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
 
-  console.log(`[EMAIL] Sent: ${sent}, Failed: ${failed}`);
+  console.log(`[EMAIL] Sent: ${sent}, Failed: ${failed}, Total subscribers: ${subscribers.length}`);
   return { sent, failed, errors };
 }
 
