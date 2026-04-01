@@ -34,13 +34,20 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
   let failed = 0;
   const errors: string[] = [];
 
-  // Filter out invalid emails (must have @ and valid domain with TLD)
-  const validSubscribers = subscribers.filter((sub) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sub.email)
-  );
+  // Sanitize and filter emails strictly
+  const sanitized = subscribers.map((sub) => ({
+    ...sub,
+    email: (sub.email || "").trim().toLowerCase(),
+  }));
+  const validSubscribers = sanitized.filter((sub) => {
+    if (!sub.email) return false;
+    // Strict: local@domain.tld, no spaces, no consecutive dots
+    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(sub.email);
+  });
 
   if (validSubscribers.length < subscribers.length) {
-    console.log(`[EMAIL] Filtered ${subscribers.length - validSubscribers.length} invalid emails`);
+    const invalid = sanitized.filter((s) => !validSubscribers.includes(s)).map((s) => s.email);
+    console.log(`[EMAIL] Filtered ${subscribers.length - validSubscribers.length} invalid emails:`, invalid);
   }
 
   // Build personalized emails (each has unique unsubscribe URL)
@@ -64,7 +71,33 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
       const { data, error } = await resend.batch.send(chunk);
 
       if (error) {
-        // Entire batch failed
+        // If 422 validation error, fall back to individual sends to isolate bad email
+        if (error.message?.includes("Invalid") || (error as any).statusCode === 422) {
+          console.warn(`[EMAIL] Batch rejected (422) — falling back to individual sends for ${chunk.length} emails`);
+          for (const payload of chunk) {
+            try {
+              const { data: singleData, error: singleError } = await resend.emails.send(payload);
+              if (singleError) {
+                failed++;
+                errors.push(`${payload.to[0]}: ${singleError.message}`);
+                console.error(`[EMAIL] Individual send failed for ${payload.to[0]}:`, singleError.message);
+                logEmailSend(edition.id, payload.to[0], null, "failed", singleError.message).catch(() => {});
+              } else if (singleData?.id) {
+                sent++;
+                logEmailSend(edition.id, payload.to[0], singleData.id, "sent").catch(() => {});
+              }
+            } catch (singleErr: any) {
+              failed++;
+              errors.push(`${payload.to[0]}: ${singleErr?.message || "Unknown"}`);
+              logEmailSend(edition.id, payload.to[0], null, "failed", singleErr?.message).catch(() => {});
+            }
+            // Small delay between individual sends
+            await new Promise((r) => setTimeout(r, 200));
+          }
+          continue;
+        }
+
+        // Other batch errors
         console.error(`[EMAIL] Batch error:`, error);
         for (const payload of chunk) {
           failed++;
