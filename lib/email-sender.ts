@@ -69,7 +69,7 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
         for (const payload of chunk) {
           failed++;
           errors.push(error.message || "Batch send failed");
-          logEmailSend(edition.id, payload.to as string, null, "failed", error.message).catch(() => {});
+          logEmailSend(edition.id, payload.to[0], null, "failed", error.message).catch(() => {});
         }
         continue;
       }
@@ -77,7 +77,7 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
       // data.data is an array of { id } for each email
       const results = data?.data || [];
       for (let j = 0; j < chunk.length; j++) {
-        const recipientEmail = chunk[j].to as string;
+        const recipientEmail = chunk[j].to[0];
         const result = results[j];
         if (result?.id) {
           sent++;
@@ -93,7 +93,7 @@ export async function sendNewsletterToSubscribers(edition: StoredEdition): Promi
       for (const payload of chunk) {
         failed++;
         errors.push(err?.message || "Unknown error");
-        logEmailSend(edition.id, payload.to as string, null, "failed", err?.message).catch(() => {});
+        logEmailSend(edition.id, payload.to[0], null, "failed", err?.message).catch(() => {});
       }
     }
 
